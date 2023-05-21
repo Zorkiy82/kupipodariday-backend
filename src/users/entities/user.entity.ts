@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 
 import { Length } from 'class-validator';
@@ -32,16 +33,16 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
-  @ManyToOne(() => Wish, (wish) => wish.owner)
+  @OneToMany(() => Wish, (wish) => wish.owner)
   wishes: Wish[];
 
-  @ManyToMany(() => Offer, (offer) => offer.user)
+  @OneToMany(() => Offer, (offer) => offer.user)
   offers: Offer[];
 
-  @ManyToOne(() => Wishlist, (wishList) => wishList.owner)
+  @OneToMany(() => Wishlist, (wishList) => wishList.owner)
   wishlists: Wishlist[];
 
   @CreateDateColumn()

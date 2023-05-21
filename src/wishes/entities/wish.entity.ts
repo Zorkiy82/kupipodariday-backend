@@ -7,6 +7,8 @@ import {
   OneToOne,
   JoinColumn,
   ManyToMany,
+  ManyToOne,
+  OneToMany,
 } from 'typeorm';
 
 import { Length, IsUrl } from 'class-validator';
@@ -29,24 +31,23 @@ export class Wish {
   @IsUrl()
   image: string;
 
-  @Column({ type: 'decimal', precision: 2 })
+  @Column({ type: 'decimal', scale: 2, default: 0 })
   price: number;
 
-  @Column({ type: 'decimal', precision: 2 })
+  @Column({ type: 'decimal', scale: 2, default: 0 })
   raised: number;
 
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
 
   @Column()
   @Length(1, 1024)
   description: string;
 
-  @ManyToMany(() => Offer, (offer) => offer.user)
+  @OneToMany(() => Offer, (offer) => offer.item)
   offers: Offer[];
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', default: 0 })
   copied: number;
 
   @CreateDateColumn()

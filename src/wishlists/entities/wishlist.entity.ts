@@ -33,8 +33,7 @@ export class Wishlist {
   @ManyToOne(() => Wish, (wish) => wish.id)
   items: Wish[];
 
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(() => User, (user) => user.wishlists)
   owner: User;
 
   @CreateDateColumn()
