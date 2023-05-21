@@ -6,10 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Headers,
 } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
+import { sign as jwtSign, verify as jwtVerify } from 'jsonwebtoken';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { HeadersObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 @Controller('users')
 export class UsersController {
@@ -20,9 +24,18 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @Get('/me')
+  async getMe(@Headers() headers: HeadersObject) {
+    const { authorization } = headers;
+
+    if (!authorization || !String(authorization).startsWith('Bearer ')) {
+      throw new ConflictException('Необходима авторизация');
+    }
+
+    const token = String(authorization).replace('Bearer ', '');
+    const payload = await jwtVerify(token, 'some-secret-key');
+    console.log(payload);
+    return { data: 'Данные обомне )' };
   }
 
   @Get(':id')

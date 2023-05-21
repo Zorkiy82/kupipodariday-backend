@@ -7,6 +7,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
+  ManyToMany,
 } from 'typeorm';
 
 import { Wish } from 'src/wishes/entities/wish.entity';

@@ -23,10 +23,6 @@ export class Wishlist {
   name: string;
 
   @Column()
-  @Length(1, 1500)
-  description: string;
-
-  @Column()
   @IsUrl()
   image: string;
 
