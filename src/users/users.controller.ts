@@ -6,15 +6,16 @@ import {
   Patch,
   Param,
   Delete,
-  Headers,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { ConflictException } from '@nestjs/common';
-import { sign as jwtSign, verify as jwtVerify } from 'jsonwebtoken';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Request } from 'express';
+import { MyGuard } from 'src/my-guard';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { HeadersObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
+@UseGuards(MyGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -25,23 +26,19 @@ export class UsersController {
   }
 
   @Get('/me')
-  async getMe(@Headers() headers: HeadersObject) {
-    const { authorization } = headers;
-
-    if (!authorization || !String(authorization).startsWith('Bearer ')) {
-      throw new ConflictException('Необходима авторизация');
-    }
-
-    const token = String(authorization).replace('Bearer ', '');
-    const payload = await jwtVerify(token, 'some-secret-key');
-    console.log(payload);
-    return { data: 'Данные обомне )' };
+  async getMe(@Req() { user }: Request) {
+    return this.usersService.findMe(user as number);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @Get('/test')
+  test(@Req() { user }: Request) {
+    return user;
   }
+
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.usersService.findOne(+id);
+  // }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

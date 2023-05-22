@@ -4,8 +4,6 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToMany,
-  ManyToOne,
   OneToMany,
 } from 'typeorm';
 
@@ -30,7 +28,7 @@ export class User {
   @Column({ default: 'https://i.pravatar.cc/300' })
   avatar: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, select: false })
   email: string;
 
   @Column({ select: false })

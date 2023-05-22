@@ -6,7 +6,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { SigninUserDto } from 'src/auth/dto/signin-user.dto';
 
 @Injectable()
@@ -29,8 +29,24 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOne(options: FindManyOptions<User>) {
+    return this.userRepository.find(options);
+  }
+
+  findMe(id: number) {
+    const options = {
+      select: {
+        id: true,
+        username: true,
+        about: true,
+        avatar: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: { id },
+    };
+    return this.findOne(options);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
