@@ -4,10 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
   ManyToOne,
-  ManyToMany,
 } from 'typeorm';
 
 import { Wish } from 'src/wishes/entities/wish.entity';
@@ -27,7 +24,7 @@ export class Offer {
   @Column()
   itemId: number;
 
-  @ManyToOne(() => Wish, (wish) => wish.offers)
+  @ManyToOne(() => Wish)
   item: Wish;
 
   @Column({ type: 'decimal', precision: 2 })

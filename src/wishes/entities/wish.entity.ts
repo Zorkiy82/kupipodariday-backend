@@ -4,11 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
   ManyToMany,
   ManyToOne,
-  OneToMany,
+  JoinTable,
 } from 'typeorm';
 
 import { Length, IsUrl } from 'class-validator';
@@ -44,7 +42,8 @@ export class Wish {
   @Length(1, 1024)
   description: string;
 
-  @OneToMany(() => Offer, (offer) => offer.item)
+  @ManyToMany(() => Offer, (offer) => offer.item)
+  @JoinTable()
   offers: Offer[];
 
   @Column({ type: 'integer', default: 0 })
