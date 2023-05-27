@@ -1,52 +1,49 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
+  Patch,
+  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { Request } from 'express';
-import { MyGuard } from 'src/my-guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FindByQueryDto } from './dto/find-by-query.dto';
 
-@UseGuards(MyGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Patch('/me')
+  updateMe(@Req() { user }: Request, @Body() updateUserDto: UpdateUserDto) {
+    const { id } = user as { id: number };
+    return this.usersService.updateMe(id, updateUserDto);
   }
 
   @Get('/me')
   async getMe(@Req() { user }: Request) {
-    return this.usersService.findMe(user as number);
+    const { id } = user as { id: number };
+    return this.usersService.findMe(id);
   }
 
-  @Get('/test')
-  test(@Req() { user }: Request) {
-    return user;
+  @Get('/me/wishes')
+  async getMeWishes(@Req() { user }: Request) {
+    const { id } = user as { id: number };
+    return this.usersService.findMeWishes(id);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
-  // }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Post('/find')
+  findByQuery(@Body() { query }: FindByQueryDto) {
+    return this.usersService.findByQuery(query);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Get('/:username')
+  getUserByName(@Param('username') userName: string) {
+    return this.usersService.findUserByName(userName);
   }
 }
