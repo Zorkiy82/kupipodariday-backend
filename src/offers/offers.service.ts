@@ -5,6 +5,7 @@ import { Offer } from './entities/offer.entity';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { WishesService } from 'src/wishes/wishes.service';
 import { UsersService } from 'src/users/users.service';
+import { TUserData } from 'src/types';
 
 @Injectable()
 export class OffersService {
@@ -37,7 +38,7 @@ export class OffersService {
     readonly usersService: UsersService,
   ) {}
 
-  async create(user: { id: number }, createOfferDto: CreateOfferDto) {
+  async create(user: TUserData, createOfferDto: CreateOfferDto) {
     const { amount, itemId } = createOfferDto;
     const wish = await this.wishesService.findWishById(itemId);
     if (user.id === wish.owner.id) {

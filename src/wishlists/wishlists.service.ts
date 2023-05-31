@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
 import { WishesService } from 'src/wishes/wishes.service';
+import { TUserData } from 'src/types';
 
 @Injectable()
 export class WishlistsService {
@@ -30,7 +31,7 @@ export class WishlistsService {
     private wishesService: WishesService,
   ) {}
 
-  async create(user: { id: number }, createWishlistDto: CreateWishlistDto) {
+  async create(user: TUserData, createWishlistDto: CreateWishlistDto) {
     const newWishList = this.wishlistRepository.create(createWishlistDto);
     const owner = await this.usersService.findMe(user.id);
     const wishes = await this.wishesService.findAllWishesByIdList(
@@ -67,7 +68,7 @@ export class WishlistsService {
   async update(
     id: number,
     updateWishlistDto: UpdateWishlistDto,
-    user: { id: number },
+    user: TUserData,
   ) {
     const wishList = await this.findOne(id);
     if (wishList.owner.id !== user.id) {
@@ -88,7 +89,7 @@ export class WishlistsService {
     return wishList;
   }
 
-  async remove(id: number, user: { id: number }) {
+  async remove(id: number, user: TUserData) {
     const wishList = await this.findOne(id);
 
     if (wishList.owner.id !== user.id) {

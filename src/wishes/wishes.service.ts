@@ -11,10 +11,10 @@ import {
   FindOneOptions,
   Repository,
   FindOptionsOrderValue,
-  FindOptionsWhere,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
+import { TUserData } from 'src/types';
 
 @Injectable()
 export class WishesService {
@@ -37,7 +37,7 @@ export class WishesService {
     private usersService: UsersService,
   ) {}
 
-  async create(user: { id: number }, createWishDto: CreateWishDto) {
+  async create(user: TUserData, createWishDto: CreateWishDto) {
     const newWish = this.wishRepository.create(createWishDto);
     const owner = await this.usersService.findMe(user.id);
     newWish.owner = owner;
@@ -45,7 +45,7 @@ export class WishesService {
     return {};
   }
 
-  async copyWish(id: number, user: { id: number }) {
+  async copyWish(id: number, user: TUserData) {
     const wish = await this.findWishById(id);
     if (!wish) {
       throw new NotFoundException(`По :id ничего не найдено`);
@@ -155,7 +155,7 @@ export class WishesService {
   async updateWishById(
     id: number,
     updateWishDto: UpdateWishDto,
-    user: { id: number },
+    user: TUserData,
   ) {
     const wish = await this.findWishById(id);
     if (!wish) {
@@ -181,7 +181,7 @@ export class WishesService {
     return await this.wishRepository.delete(id);
   }
 
-  async deleteWishById(id: number, user: { id: number }) {
+  async deleteWishById(id: number, user: TUserData) {
     const wish = await this.findWishById(id);
     if (!wish) {
       throw new NotFoundException(`По :id ничего не найдено`);

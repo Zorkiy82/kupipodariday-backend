@@ -22,6 +22,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
+    // добавить проверку на существование такого пользователя
     const newUser = await this.userRepository.create(createUserDto);
     newUser.password = await bcryptHash(newUser.password, 10);
 

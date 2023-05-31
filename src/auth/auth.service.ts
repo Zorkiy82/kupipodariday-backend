@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt/dist';
 import { compare as bcryptCompare } from 'bcryptjs';
+import { TUserData } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +11,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(login: string, password: string): Promise<{ id: number }> {
+  async validateUser(login: string, password: string): Promise<TUserData> {
     const user = await this.usersService.findOneByLogin(login);
     if (!user) {
       throw new UnauthorizedException('Некорректная пара логин и пароль');
@@ -22,7 +23,7 @@ export class AuthService {
     return { id: user.id };
   }
 
-  async login(user: { id: number }) {
+  async login(user: TUserData) {
     const payload = user;
     return { access_token: this.jwtService.sign(payload) };
   }

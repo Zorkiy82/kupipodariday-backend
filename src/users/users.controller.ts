@@ -13,6 +13,7 @@ import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindByQueryDto } from './dto/find-by-query.dto';
+import { TUserData } from 'src/types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -26,19 +27,19 @@ export class UsersController {
 
   @Get('/me')
   async getMe(@Req() { user }: Request) {
-    const { id } = user as { id: number };
+    const { id } = user as TUserData;
     return this.usersService.findMe(id);
   }
 
   @Patch('/me')
   updateMe(@Req() { user }: Request, @Body() updateUserDto: UpdateUserDto) {
-    const { id } = user as { id: number };
+    const { id } = user as TUserData;
     return this.usersService.updateMe(id, updateUserDto);
   }
 
   @Get('/me/wishes')
   async getMeWishes(@Req() { user }: Request) {
-    const { id } = user as { id: number };
+    const { id } = user as TUserData;
     return this.usersService.findWishesByOptions('id', id);
   }
 
@@ -48,7 +49,7 @@ export class UsersController {
   }
 
   @Get('/:username')
-  getUserByName(@Param('username') userName: string) {
+  geTUserDataByName(@Param('username') userName: string) {
     return this.usersService.findUserByName(userName);
   }
 }
