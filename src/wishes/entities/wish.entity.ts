@@ -9,7 +9,7 @@ import {
   JoinTable,
 } from 'typeorm';
 
-import { Length, IsUrl } from 'class-validator';
+import { Length, IsUrl, Min } from 'class-validator';
 import { User } from 'src/users/entities/user.entity';
 import { Offer } from 'src/offers/entities/offer.entity';
 
@@ -29,10 +29,10 @@ export class Wish {
   @IsUrl()
   image: string;
 
-  @Column({ type: 'decimal', scale: 2, default: 0 })
+  @Column({ type: 'double precision', default: 0 })
   price: number;
 
-  @Column({ type: 'decimal', scale: 2, default: 0 })
+  @Column({ type: 'double precision', default: 0 })
   raised: number;
 
   @ManyToOne(() => User, (user) => user.wishes)

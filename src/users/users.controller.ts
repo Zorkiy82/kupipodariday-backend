@@ -19,10 +19,9 @@ import { FindByQueryDto } from './dto/find-by-query.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Patch('/me')
-  updateMe(@Req() { user }: Request, @Body() updateUserDto: UpdateUserDto) {
-    const { id } = user as { id: number };
-    return this.usersService.updateMe(id, updateUserDto);
+  @Post('/find')
+  findByQuery(@Body() { query }: FindByQueryDto) {
+    return this.usersService.findByQuery(query);
   }
 
   @Get('/me')
@@ -31,15 +30,21 @@ export class UsersController {
     return this.usersService.findMe(id);
   }
 
+  @Patch('/me')
+  updateMe(@Req() { user }: Request, @Body() updateUserDto: UpdateUserDto) {
+    const { id } = user as { id: number };
+    return this.usersService.updateMe(id, updateUserDto);
+  }
+
   @Get('/me/wishes')
   async getMeWishes(@Req() { user }: Request) {
     const { id } = user as { id: number };
-    return this.usersService.findMeWishes(id);
+    return this.usersService.findWishesByOptions('id', id);
   }
 
-  @Post('/find')
-  findByQuery(@Body() { query }: FindByQueryDto) {
-    return this.usersService.findByQuery(query);
+  @Get('/:username/wishes')
+  getWishesByUserName(@Param('username') userName: string) {
+    return this.usersService.findWishesByOptions('username', userName);
   }
 
   @Get('/:username')

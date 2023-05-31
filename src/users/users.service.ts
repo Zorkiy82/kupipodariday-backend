@@ -25,6 +25,7 @@ export class UsersService {
     const newUser = await this.userRepository.create(createUserDto);
     newUser.password = await bcryptHash(newUser.password, 10);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...user } = await this.userRepository.save(newUser);
     return user;
   }
@@ -61,14 +62,20 @@ export class UsersService {
     return this.findOne(options);
   }
 
-  async findMeWishes(id: number) {
+  async findWishesByOptions(optionName: string, optionvalue: number | string) {
     const options = {
-      select: {
-        wishes: true,
-      },
-      where: { id },
+      where: { [`${optionName}`]: optionvalue },
       relations: {
-        wishes: { offers: true },
+        wishes: {
+          owner: true,
+          offers: {
+            user: {
+              wishes: true,
+              offers: true,
+              wishlists: { owner: true, items: true },
+            },
+          },
+        },
       },
     };
 
