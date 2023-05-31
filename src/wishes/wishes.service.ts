@@ -11,6 +11,7 @@ import {
   FindOneOptions,
   Repository,
   FindOptionsOrderValue,
+  FindOptionsWhere,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
@@ -94,6 +95,23 @@ export class WishesService {
     };
 
     const wish = await this.findOne(options);
+
+    if (!wish) {
+      throw new NotFoundException(`По :id ничего не найдено`);
+    }
+
+    return wish;
+  }
+
+  async findAllWishesByIdList(idList: number[]) {
+    const whereOptions = idList.map((id: number) => {
+      return { id };
+    });
+    const options = {
+      where: whereOptions,
+    };
+
+    const wish = await this.findAll(options);
 
     if (!wish) {
       throw new NotFoundException(`По :id ничего не найдено`);

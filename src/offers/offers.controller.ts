@@ -4,14 +4,11 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Req,
   Param,
-  Delete,
 } from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
-import { UpdateOfferDto } from './dto/update-offer.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Request } from 'express';
 

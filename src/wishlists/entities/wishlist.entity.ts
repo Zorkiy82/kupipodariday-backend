@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 import { Length, IsUrl } from 'class-validator';
@@ -24,10 +26,11 @@ export class Wishlist {
   @IsUrl()
   image: string;
 
-  @ManyToOne(() => Wish, (wish) => wish.id)
+  @ManyToMany(() => Wish, (wish) => wish.id)
+  @JoinTable()
   items: Wish[];
 
-  @ManyToOne(() => User, (user) => user.wishlists)
+  @ManyToOne(() => User, (user) => user.id)
   owner: User;
 
   @CreateDateColumn()

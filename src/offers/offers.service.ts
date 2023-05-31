@@ -60,7 +60,7 @@ export class OffersService {
     newOffer.user = offerOwner;
     newOffer.item = wish;
     await this.offerRepository.save(newOffer);
-
+    wish.offers.push(newOffer);
     wish.raised += amount;
     await this.wishesService.updateFull(wish);
     return {};
