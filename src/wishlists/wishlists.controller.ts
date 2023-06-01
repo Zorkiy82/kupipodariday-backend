@@ -13,8 +13,7 @@ import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { Request } from 'express';
-import { TUserData } from 'src/types';
+import { CastomRequest } from 'src/types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('wishlistlists')
@@ -24,9 +23,9 @@ export class WishlistsController {
   @Post()
   create(
     @Body() createWishlistDto: CreateWishlistDto,
-    @Req() { user }: Request,
+    @Req() { user }: CastomRequest,
   ) {
-    return this.wishlistsService.create(user as TUserData, createWishlistDto);
+    return this.wishlistsService.create(user, createWishlistDto);
   }
 
   @Get()
@@ -43,17 +42,13 @@ export class WishlistsController {
   update(
     @Param('id') id: string,
     @Body() updateWishlistDto: UpdateWishlistDto,
-    @Req() { user }: Request,
+    @Req() { user }: CastomRequest,
   ) {
-    return this.wishlistsService.update(
-      +id,
-      updateWishlistDto,
-      user as TUserData,
-    );
+    return this.wishlistsService.update(+id, updateWishlistDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() { user }: Request) {
-    return this.wishlistsService.remove(+id, user as TUserData);
+  remove(@Param('id') id: string, @Req() { user }: CastomRequest) {
+    return this.wishlistsService.remove(+id, user);
   }
 }

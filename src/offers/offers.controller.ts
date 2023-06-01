@@ -10,8 +10,7 @@ import {
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { Request } from 'express';
-import { TUserData } from 'src/types';
+import { CastomRequest } from 'src/types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('offers')
@@ -19,8 +18,11 @@ export class OffersController {
   constructor(private readonly offersService: OffersService) {}
 
   @Post()
-  create(@Body() createOfferDto: CreateOfferDto, @Req() { user }: Request) {
-    return this.offersService.create(user as TUserData, createOfferDto);
+  create(
+    @Body() createOfferDto: CreateOfferDto,
+    @Req() { user }: CastomRequest,
+  ) {
+    return this.offersService.create(user, createOfferDto);
   }
 
   @Get()

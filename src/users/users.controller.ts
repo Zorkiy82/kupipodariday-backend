@@ -9,11 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FindByQueryDto } from './dto/find-by-query.dto';
-import { TUserData } from 'src/types';
+import { CastomRequest } from 'src/types';
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -26,20 +25,23 @@ export class UsersController {
   }
 
   @Get('/me')
-  async getMe(@Req() { user }: Request) {
-    const { id } = user as TUserData;
+  async getMe(@Req() { user }: CastomRequest) {
+    const { id } = user;
     return this.usersService.findMe(id);
   }
 
   @Patch('/me')
-  updateMe(@Req() { user }: Request, @Body() updateUserDto: UpdateUserDto) {
-    const { id } = user as TUserData;
+  updateMe(
+    @Req() { user }: CastomRequest,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const { id } = user;
     return this.usersService.updateMe(id, updateUserDto);
   }
 
   @Get('/me/wishes')
-  async getMeWishes(@Req() { user }: Request) {
-    const { id } = user as TUserData;
+  async getMeWishes(@Req() { user }: CastomRequest) {
+    const { id } = user;
     return this.usersService.findWishesByOptions('id', id);
   }
 
