@@ -10,20 +10,6 @@ import { TUserData } from 'src/types';
 
 @Injectable()
 export class WishlistsService {
-  relationSettings = {
-    owner: true,
-    offers: {
-      user: {
-        wishes: true,
-        offers: true,
-        wishlists: {
-          owner: true,
-          items: true,
-        },
-      },
-    },
-  };
-
   constructor(
     @InjectRepository(Wishlist)
     private readonly wishlistRepository: Repository<Wishlist>,
@@ -72,7 +58,9 @@ export class WishlistsService {
   ) {
     const wishList = await this.findOne(id);
     if (wishList.owner.id !== user.id) {
-      throw new ConflictException(`Редактировать можно только свою коллекцию`);
+      throw new ConflictException(
+        `Редактировать можно только свою подборку подарков`,
+      );
     }
 
     const { name, image, itemsId }: UpdateWishlistDto = updateWishlistDto;
@@ -93,7 +81,9 @@ export class WishlistsService {
     const wishList = await this.findOne(id);
 
     if (wishList.owner.id !== user.id) {
-      throw new ConflictException(`Удалить можно только свою коллекцию`);
+      throw new ConflictException(
+        `Удалить можно только свою подборку подарков`,
+      );
     }
 
     await this.wishlistRepository.delete(id);

@@ -15,11 +15,11 @@ import { UpdateWishDto } from './dto/update-wish.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CastomRequest } from 'src/types';
 
-@UseGuards(JwtAuthGuard)
 @Controller('wishes')
 export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createWishDto: CreateWishDto, @Req() { user }: CastomRequest) {
     return this.wishesService.create(user, createWishDto);
@@ -35,15 +35,19 @@ export class WishesController {
     return this.wishesService.findTopWishes();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('/:id/copy')
   copyWish(@Param('id') id: number, @Req() { user }: CastomRequest) {
     return this.wishesService.copyWish(id, user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/:id')
   getWishById(@Param('id') id: number) {
     return this.wishesService.findWishById(id);
   }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('/:id')
   updateWishById(
     @Param('id') id: number,
@@ -53,6 +57,7 @@ export class WishesController {
     return this.wishesService.updateWishById(id, updateWishDto, user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   deleteWishById(@Param('id') id: number, @Req() { user }: CastomRequest) {
     return this.wishesService.deleteWishById(id, user);
