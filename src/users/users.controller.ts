@@ -1,52 +1,57 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
+  Patch,
+  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { Request } from 'express';
-import { MyGuard } from 'src/my-guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FindByQueryDto } from './dto/find-by-query.dto';
+import { CastomRequest } from 'src/types';
 
-@UseGuards(MyGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Post('/find')
+  findByQuery(@Body() { query }: FindByQueryDto) {
+    return this.usersService.findByQuery(query);
   }
 
   @Get('/me')
-  async getMe(@Req() { user }: Request) {
-    return this.usersService.findMe(user as number);
+  async getMe(@Req() { user }: CastomRequest) {
+    const { id } = user;
+    return this.usersService.findMe(id);
   }
 
-  @Get('/test')
-  test(@Req() { user }: Request) {
-    return user;
+  @Patch('/me')
+  updateMe(
+    @Req() { user }: CastomRequest,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const { id } = user;
+    return this.usersService.updateMe(id, updateUserDto);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.usersService.findOne(+id);
-  // }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Get('/me/wishes')
+  async getMeWishes(@Req() { user }: CastomRequest) {
+    const { id } = user;
+    return this.usersService.findWishesByOptions('id', id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Get('/:username/wishes')
+  getWishesByUserName(@Param('username') userName: string) {
+    return this.usersService.findWishesByOptions('username', userName);
+  }
+
+  @Get('/:username')
+  geTUserDataByName(@Param('username') userName: string) {
+    return this.usersService.findUserByName(userName);
   }
 }

@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ConflictException } from '@nestjs/common';
-import { hash as bcryptHash, compare as bcryptCompare } from 'bcryptjs';
-import { sign as jwtSign } from 'jsonwebtoken';
+import { hash as bcryptHash } from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindManyOptions, Repository } from 'typeorm';
-import { SigninUserDto } from 'src/auth/dto/signin-user.dto';
+import { FindManyOptions, FindOneOptions, Repository, ILike } from 'typeorm';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,21 +13,38 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  findOne(options: FindOneOptions<User>) {
+    return this.userRepository.findOne(options);
+  }
+
+  findAll(options: FindManyOptions<User>) {
+    return this.userRepository.find(options);
+  }
+
   async create(createUserDto: CreateUserDto) {
-    const newUser = this.userRepository.create(createUserDto);
+    // добавить проверку на существование такого пользователя
+    const newUser = await this.userRepository.create(createUserDto);
     newUser.password = await bcryptHash(newUser.password, 10);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...user } = await this.userRepository.save(newUser);
     return user;
-    // return await this.userRepository.find({ where: [{ id: 11 }, { id: 14 }] });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async updateMe(id: number, updateUserDto: UpdateUserDto) {
+    const { password } = updateUserDto;
+    if (password) {
+      updateUserDto.password = await bcryptHash(password, 10);
+    }
+    return this.userRepository.update(id, updateUserDto);
   }
 
-  findOne(options: FindManyOptions<User>) {
-    return this.userRepository.find(options);
+  findOneByLogin(login: string) {
+    const options: FindOneOptions<User> = {
+      select: { username: true, id: true, password: true, email: true },
+      where: [{ username: login }, { email: login }],
+    };
+    return this.findOne(options);
   }
 
   findMe(id: number) {
@@ -49,40 +63,53 @@ export class UsersService {
     return this.findOne(options);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findWishesByOptions(optionName: string, optionvalue: number | string) {
+    const options = {
+      where: { [`${optionName}`]: optionvalue },
+      relations: {
+        wishes: {
+          owner: true,
+          offers: {
+            user: {
+              wishes: true,
+              offers: true,
+              wishlists: { owner: true, items: true },
+            },
+          },
+        },
+      },
+    };
+
+    const { wishes } = await this.findOne(options);
+
+    return wishes;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  findByQuery(query: string) {
+    const options: FindManyOptions<User> = {
+      select: {
+        id: true,
+        username: true,
+        about: true,
+        avatar: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: [
+        { username: ILike(`%${query}%`) },
+        { email: ILike(`%${query}%`) },
+      ],
+    };
+
+    return this.findAll(options);
   }
 
-  async login(signinUserDto: SigninUserDto) {
-    const { username, password } = signinUserDto;
-    const res = await this.userRepository.findOne({
-      select: { password: true, username: true, email: true, id: true },
-      where: [{ email: username }, { username: username }],
-    });
+  findUserByName(userName: string) {
+    const options: FindOneOptions<User> = {
+      where: { username: userName },
+    };
 
-    if (!res) {
-      throw new ConflictException('Некорректная пара логин и пароль');
-    }
-    const isMatches = await bcryptCompare(password, res.password);
-    if (!isMatches) {
-      throw new ConflictException('Некорректная пара логин и пароль');
-    }
-
-    const token = jwtSign(
-      {
-        id: res.id,
-      },
-      'some-secret-key',
-      {
-        expiresIn: '7d',
-      },
-    );
-
-    // console.log(res);
-    return { access_token: token };
+    return this.findOne(options);
   }
 }

@@ -9,25 +9,21 @@ import {
 
 import { Wish } from 'src/wishes/entities/wish.entity';
 import { User } from 'src/users/entities/user.entity';
+import { IsNumber } from 'class-validator';
 
 @Entity()
 export class Offer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @Column()
-  // userId: number;
-
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
-
-  @Column()
-  itemId: number;
 
   @ManyToOne(() => Wish)
   item: Wish;
 
-  @Column({ type: 'decimal', precision: 2 })
+  @IsNumber()
+  @Column({ type: 'double precision' })
   amount: number;
 
   @Column({ default: false })

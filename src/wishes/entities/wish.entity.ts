@@ -29,10 +29,10 @@ export class Wish {
   @IsUrl()
   image: string;
 
-  @Column({ type: 'decimal', scale: 2, default: 0 })
+  @Column({ type: 'double precision', default: 0 })
   price: number;
 
-  @Column({ type: 'decimal', scale: 2, default: 0 })
+  @Column({ type: 'double precision', default: 0 })
   raised: number;
 
   @ManyToOne(() => User, (user) => user.wishes)

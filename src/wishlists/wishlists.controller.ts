@@ -1,6 +1,8 @@
 import {
   Controller,
+  UseGuards,
   Get,
+  Req,
   Post,
   Body,
   Patch,
@@ -10,14 +12,20 @@ import {
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CastomRequest } from 'src/types';
 
-@Controller('wishlists')
+@UseGuards(JwtAuthGuard)
+@Controller('wishlistlists')
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
   @Post()
-  create(@Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistsService.create(createWishlistDto);
+  create(
+    @Body() createWishlistDto: CreateWishlistDto,
+    @Req() { user }: CastomRequest,
+  ) {
+    return this.wishlistsService.create(user, createWishlistDto);
   }
 
   @Get()
@@ -34,12 +42,13 @@ export class WishlistsController {
   update(
     @Param('id') id: string,
     @Body() updateWishlistDto: UpdateWishlistDto,
+    @Req() { user }: CastomRequest,
   ) {
-    return this.wishlistsService.update(+id, updateWishlistDto);
+    return this.wishlistsService.update(+id, updateWishlistDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishlistsService.remove(+id);
+  remove(@Param('id') id: string, @Req() { user }: CastomRequest) {
+    return this.wishlistsService.remove(+id, user);
   }
 }
