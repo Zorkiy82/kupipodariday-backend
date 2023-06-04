@@ -1,5 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { hash as bcryptHash } from 'bcryptjs';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { hash as bcryptHash } from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -22,7 +26,28 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    // добавить проверку на существование такого пользователя
+    const { username, email } = createUserDto;
+
+    const userWhereName = await this.findOne({
+      where: { username },
+    });
+
+    if (userWhereName) {
+      throw new ConflictException(
+        `Пользователь с именем ${username} уже зарегистрирован. Выберете другое имя`,
+      );
+    }
+
+    const userWhereEmail = await this.findOne({
+      where: { email: ILike(`%${email}%`) },
+    });
+
+    if (userWhereEmail) {
+      throw new ConflictException(
+        `Пользователь с email ${email} уже зарегистрирован. Введите другой email`,
+      );
+    }
+
     const newUser = await this.userRepository.create(createUserDto);
     newUser.password = await bcryptHash(newUser.password, 10);
 
@@ -36,7 +61,8 @@ export class UsersService {
     if (password) {
       updateUserDto.password = await bcryptHash(password, 10);
     }
-    return this.userRepository.update(id, updateUserDto);
+    await this.userRepository.update(id, updateUserDto);
+    return await this.findMe(id);
   }
 
   findOneByLogin(login: string) {
@@ -70,17 +96,21 @@ export class UsersService {
         wishes: {
           owner: true,
           offers: {
-            user: {
-              wishes: true,
-              offers: true,
-              wishlists: { owner: true, items: true },
-            },
+            user: true,
           },
         },
       },
     };
 
-    const { wishes } = await this.findOne(options);
+    const user = await this.findOne(options);
+
+    if (!user) {
+      throw new NotFoundException(
+        `Не найден пользователь с ${optionName}=${optionvalue}`,
+      );
+    }
+
+    const { wishes } = user;
 
     return wishes;
   }
@@ -105,11 +135,19 @@ export class UsersService {
     return this.findAll(options);
   }
 
-  findUserByName(userName: string) {
+  async findUserByName(userName: string) {
     const options: FindOneOptions<User> = {
       where: { username: userName },
     };
 
-    return this.findOne(options);
+    const user = await this.findOne(options);
+
+    if (!user) {
+      throw new NotFoundException(
+        `Не найден пользователь с именем - ${userName}`,
+      );
+    }
+
+    return user;
   }
 }

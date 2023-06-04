@@ -21,16 +21,10 @@ export class WishesService {
   relationSettings = {
     owner: true,
     offers: {
-      user: {
-        wishes: true,
-        offers: true,
-        wishlists: {
-          owner: true,
-          items: true,
-        },
-      },
+      user: true,
     },
   };
+
   constructor(
     @InjectRepository(Wish)
     private readonly wishRepository: Repository<Wish>,
@@ -79,19 +73,7 @@ export class WishesService {
   async findWishById(id: number) {
     const options = {
       where: { id },
-      relations: {
-        owner: true,
-        offers: {
-          user: {
-            wishes: true,
-            offers: true,
-            wishlists: {
-              owner: true,
-              items: true,
-            },
-          },
-        },
-      },
+      relations: this.relationSettings,
     };
 
     const wish = await this.findOne(options);
