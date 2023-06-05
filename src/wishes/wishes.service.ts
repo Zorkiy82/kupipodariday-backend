@@ -11,10 +11,12 @@ import {
   FindOneOptions,
   Repository,
   FindOptionsOrderValue,
+  UpdateResult,
+  DeleteResult,
 } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UsersService } from 'src/users/users.service';
-import { TUserData } from 'src/types';
+import { UsersService } from '../users/users.service';
+import { TUserData } from '../common/types/types';
 
 @Injectable()
 export class WishesService {
@@ -31,7 +33,10 @@ export class WishesService {
     private usersService: UsersService,
   ) {}
 
-  async create(user: TUserData, createWishDto: CreateWishDto) {
+  async create(
+    user: TUserData,
+    createWishDto: CreateWishDto,
+  ): Promise<Record<string, never>> {
     const newWish = this.wishRepository.create(createWishDto);
     const owner = await this.usersService.findMe(user.id);
     newWish.owner = owner;
@@ -39,7 +44,7 @@ export class WishesService {
     return {};
   }
 
-  async copyWish(id: number, user: TUserData) {
+  async copyWish(id: number, user: TUserData): Promise<Record<string, never>> {
     const wish = await this.findWishById(id);
     if (!wish) {
       throw new NotFoundException(`По :id ничего не найдено`);
@@ -62,15 +67,15 @@ export class WishesService {
     return newWish;
   }
 
-  findAll(options: FindManyOptions<Wish>) {
+  findAll(options: FindManyOptions<Wish>): Promise<Wish[]> {
     return this.wishRepository.find(options);
   }
 
-  findOne(options: FindOneOptions<Wish>) {
+  findOne(options: FindOneOptions<Wish>): Promise<Wish> {
     return this.wishRepository.findOne(options);
   }
 
-  async findWishById(id: number) {
+  async findWishById(id: number): Promise<Wish> {
     const options = {
       where: { id },
       relations: this.relationSettings,
@@ -85,7 +90,7 @@ export class WishesService {
     return wish;
   }
 
-  async findAllWishesByIdList(idList: number[]) {
+  async findAllWishesByIdList(idList: number[]): Promise<Wish[]> {
     const whereOptions = idList.map((id: number) => {
       return { id };
     });
@@ -102,7 +107,7 @@ export class WishesService {
     return wish;
   }
 
-  findLastWishes() {
+  findLastWishes(): Promise<Wish[]> {
     const orderValue: FindOptionsOrderValue = 'DESC';
     const options = {
       order: {
@@ -114,7 +119,7 @@ export class WishesService {
     return this.findAll(options);
   }
 
-  findTopWishes() {
+  findTopWishes(): Promise<Wish[]> {
     const orderValue: FindOptionsOrderValue = 'DESC';
     const options = {
       order: {
@@ -126,11 +131,11 @@ export class WishesService {
     return this.findAll(options);
   }
 
-  update(id: number, updateWishDto: UpdateWishDto) {
+  update(id: number, updateWishDto: UpdateWishDto): Promise<UpdateResult> {
     return this.wishRepository.update(id, updateWishDto);
   }
 
-  updateFull(wish: Wish) {
+  updateFull(wish: Wish): Promise<Wish> {
     return this.wishRepository.save(wish);
   }
 
@@ -138,7 +143,7 @@ export class WishesService {
     id: number,
     updateWishDto: UpdateWishDto,
     user: TUserData,
-  ) {
+  ): Promise<Record<string, never>> {
     const wish = await this.findWishById(id);
     if (!wish) {
       throw new NotFoundException(`По :id ничего не найдено`);
@@ -154,16 +159,16 @@ export class WishesService {
       );
     }
 
-    this.update(id, updateWishDto);
+    await this.update(id, updateWishDto);
 
-    return await this.update(id, updateWishDto);
+    return {};
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<DeleteResult> {
     return await this.wishRepository.delete(id);
   }
 
-  async deleteWishById(id: number, user: TUserData) {
+  async deleteWishById(id: number, user: TUserData): Promise<Wish> {
     const wish = await this.findWishById(id);
     if (!wish) {
       throw new NotFoundException(`По :id ничего не найдено`);

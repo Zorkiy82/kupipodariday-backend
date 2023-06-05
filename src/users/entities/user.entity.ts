@@ -1,37 +1,33 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 
-import { Length } from 'class-validator';
-import { Wish } from 'src/wishes/entities/wish.entity';
-import { Offer } from 'src/offers/entities/offer.entity';
-import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
+import { IsEmail, IsString, IsUrl, Length } from 'class-validator';
+import { Wish } from '../../wishes/entities/wish.entity';
+import { Offer } from '../../offers/entities/offer.entity';
+import { Wishlist } from '../../wishlists/entities/wishlist.entity';
+import { BaseEntity } from '../../common/entities/base.entity';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class User extends BaseEntity {
   @Column({ unique: true })
-  @Length(2, 30)
+  @IsString()
+  @Length(1, 64)
   username: string;
 
   @Column({ default: 'Пока ничего не рассказал о себе' })
-  @Length(2, 200)
+  @IsString()
+  @Length(1, 200)
   about: string;
 
   @Column({ default: 'https://i.pravatar.cc/300' })
+  @IsUrl()
   avatar: string;
 
   @Column({ unique: true, select: false })
+  @IsEmail()
   email: string;
 
   @Column({ select: false })
+  @IsString()
   password: string;
 
   @OneToMany(() => Wish, (wish) => wish.owner)
@@ -42,10 +38,4 @@ export class User {
 
   @OneToMany(() => Wishlist, (wishList) => wishList.owner)
   wishlists: Wishlist[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

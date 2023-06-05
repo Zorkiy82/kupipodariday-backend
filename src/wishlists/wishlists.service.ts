@@ -4,9 +4,9 @@ import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { Wishlist } from './entities/wishlist.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UsersService } from 'src/users/users.service';
-import { WishesService } from 'src/wishes/wishes.service';
-import { TUserData } from 'src/types';
+import { UsersService } from '../users/users.service';
+import { WishesService } from '../wishes/wishes.service';
+import { TUserData } from '../common/types/types';
 
 @Injectable()
 export class WishlistsService {
@@ -17,7 +17,10 @@ export class WishlistsService {
     private wishesService: WishesService,
   ) {}
 
-  async create(user: TUserData, createWishlistDto: CreateWishlistDto) {
+  async create(
+    user: TUserData,
+    createWishlistDto: CreateWishlistDto,
+  ): Promise<Wishlist> {
     const newWishList = this.wishlistRepository.create(createWishlistDto);
     const owner = await this.usersService.findMe(user.id);
     const wishes = await this.wishesService.findAllWishesByIdList(
@@ -32,7 +35,7 @@ export class WishlistsService {
     return newWishList;
   }
 
-  findAll() {
+  findAll(): Promise<Wishlist[]> {
     return this.wishlistRepository.find({
       relations: {
         owner: true,
@@ -41,7 +44,7 @@ export class WishlistsService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: number): Promise<Wishlist> {
     return this.wishlistRepository.findOne({
       where: { id },
       relations: {
@@ -55,7 +58,7 @@ export class WishlistsService {
     id: number,
     updateWishlistDto: UpdateWishlistDto,
     user: TUserData,
-  ) {
+  ): Promise<Wishlist> {
     const wishList = await this.findOne(id);
     if (wishList.owner.id !== user.id) {
       throw new ConflictException(
@@ -77,7 +80,7 @@ export class WishlistsService {
     return wishList;
   }
 
-  async remove(id: number, user: TUserData) {
+  async remove(id: number, user: TUserData): Promise<Wishlist> {
     const wishList = await this.findOne(id);
 
     if (wishList.owner.id !== user.id) {

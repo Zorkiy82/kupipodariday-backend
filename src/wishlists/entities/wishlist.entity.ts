@@ -1,24 +1,14 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  ManyToMany,
-  JoinTable,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, ManyToMany, JoinTable } from 'typeorm';
 
-import { Length, IsUrl } from 'class-validator';
-import { Wish } from 'src/wishes/entities/wish.entity';
-import { User } from 'src/users/entities/user.entity';
+import { Length, IsUrl, IsString } from 'class-validator';
+import { Wish } from '../../wishes/entities/wish.entity';
+import { User } from '../../users/entities/user.entity';
+import { BaseEntity } from '../../common/entities/base.entity';
 
 @Entity()
-export class Wishlist {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Wishlist extends BaseEntity {
   @Column()
+  @IsString()
   @Length(1, 250)
   name: string;
 
@@ -32,10 +22,4 @@ export class Wishlist {
 
   @ManyToOne(() => User, (user) => user.id)
   owner: User;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

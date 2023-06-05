@@ -1,14 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt/dist';
-import { compare as bcryptCompare } from 'bcrypt';
-import { TUserData } from 'src/types';
+import { TUserData } from '../common/types/types';
+import { BcryptService } from '../common/services/bcrypt.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    readonly bcryptService: BcryptService,
   ) {}
 
   async validateUser(login: string, password: string): Promise<TUserData> {
@@ -16,14 +17,14 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Некорректная пара логин и пароль');
     }
-    const isMatches = await bcryptCompare(password, user.password);
+    const isMatches = await this.bcryptService.compare(password, user.password);
     if (!isMatches) {
       throw new UnauthorizedException('Некорректная пара логин и пароль');
     }
     return { id: user.id };
   }
 
-  async login(user: TUserData) {
+  async login(user: TUserData): Promise<{ access_token: string }> {
     const payload = user;
     return { access_token: this.jwtService.sign(payload) };
   }
