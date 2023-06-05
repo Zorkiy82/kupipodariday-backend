@@ -1,9 +1,9 @@
 import { Controller, Body, Post, Req, UseGuards } from '@nestjs/common';
-import { LocalAuthGuard } from './auth/guards/local-auth.guard';
+import { LocalAuthGuard } from './common/guards/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { CreateUserDto } from './users/dto/create-user.dto';
 import { UsersService } from './users/users.service';
-import { CastomRequest } from './types';
+import { CastomRequest } from './common/types/types';
 
 @Controller()
 export class AppController {

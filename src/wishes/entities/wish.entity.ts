@@ -1,28 +1,19 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToMany,
-  ManyToOne,
-  JoinTable,
-} from 'typeorm';
+import { Entity, Column, ManyToMany, ManyToOne, JoinTable } from 'typeorm';
 
-import { Length, IsUrl } from 'class-validator';
-import { User } from 'src/users/entities/user.entity';
-import { Offer } from 'src/offers/entities/offer.entity';
+import { Length, IsUrl, IsString, IsNumber } from 'class-validator';
+import { User } from '../../users/entities/user.entity';
+import { Offer } from '../../offers/entities/offer.entity';
+import { BaseEntity } from '../../common/entities/base.entity';
 
 @Entity()
-export class Wish {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Wish extends BaseEntity {
   @Column()
+  @IsString()
   @Length(1, 250)
   name: string;
 
   @Column()
+  @IsUrl()
   link: string;
 
   @Column()
@@ -30,15 +21,18 @@ export class Wish {
   image: string;
 
   @Column({ type: 'double precision', default: 0 })
+  @IsNumber()
   price: number;
 
   @Column({ type: 'double precision', default: 0 })
+  @IsNumber()
   raised: number;
 
   @ManyToOne(() => User, (user) => user.wishes)
   owner: User;
 
   @Column()
+  @IsString()
   @Length(1, 1024)
   description: string;
 
@@ -47,11 +41,6 @@ export class Wish {
   offers: Offer[];
 
   @Column({ type: 'integer', default: 0 })
+  @IsNumber()
   copied: number;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }

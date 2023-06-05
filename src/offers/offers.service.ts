@@ -3,9 +3,9 @@ import { CreateOfferDto } from './dto/create-offer.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Offer } from './entities/offer.entity';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
-import { WishesService } from 'src/wishes/wishes.service';
-import { UsersService } from 'src/users/users.service';
-import { TUserData } from 'src/types';
+import { WishesService } from '../wishes/wishes.service';
+import { UsersService } from '../users/users.service';
+import { TUserData } from '../common/types/types';
 
 @Injectable()
 export class OffersService {
@@ -38,7 +38,10 @@ export class OffersService {
     readonly usersService: UsersService,
   ) {}
 
-  async create(user: TUserData, createOfferDto: CreateOfferDto) {
+  async create(
+    user: TUserData,
+    createOfferDto: CreateOfferDto,
+  ): Promise<Record<string, never>> {
     const { amount, itemId } = createOfferDto;
     const wish = await this.wishesService.findWishById(itemId);
     if (user.id === wish.owner.id) {
@@ -67,14 +70,14 @@ export class OffersService {
     return {};
   }
 
-  findAll() {
+  findAll(): Promise<Offer[]> {
     const option: FindManyOptions = {
       relations: this.relationOptions,
     };
     return this.offerRepository.find(option);
   }
 
-  findOne(id: number) {
+  findOne(id: number): Promise<Offer> {
     const option: FindOneOptions = {
       where: { id },
       relations: this.relationOptions,
