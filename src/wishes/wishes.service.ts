@@ -176,6 +176,12 @@ export class WishesService {
     if (wish.owner.id !== user.id) {
       throw new ConflictException(`Нельзя удалять wish другого пользователя`);
     }
+    if (wish.offers.length) {
+      throw new ConflictException(
+        `Нельзя удалять wish, если уже есть желающие скинуться`,
+      );
+    }
+
     await this.remove(id);
 
     return wish;
